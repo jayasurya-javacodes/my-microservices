@@ -1,6 +1,7 @@
 package com.example.micro.controller;
 
 
+import com.example.micro.client.PaymentClient;
 import com.example.micro.dto.OrderResponse;
 import com.example.micro.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -9,16 +10,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClient;
+
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
+    private final PaymentClient paymentClient;
     private final OrderService orderService;
 
     @GetMapping("get/{id}")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.getOrderById(id));
+    }
+
+    @GetMapping("/process-payment")
+    public CompletableFuture<String> processPayment() {
+        return paymentClient.processPayment();
     }
 }

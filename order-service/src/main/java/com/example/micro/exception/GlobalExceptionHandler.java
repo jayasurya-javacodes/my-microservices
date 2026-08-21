@@ -26,6 +26,21 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
+    @ExceptionHandler(PaymentServiceUnavailableException.class)
+    public ResponseEntity<Map<String, Object>> handleUserServiceUnavailable(
+            PaymentServiceUnavailableException ex) {
+
+        Map<String, Object> response = Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", 503,
+                "message", ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(response);
+    }
+
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleUserNotFound(
             OrderNotFoundException ex) {
