@@ -2,9 +2,7 @@ package com.example.micro.controller;
 
 import com.example.micro.dto.UserResponse;
 import com.example.micro.service.UserService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

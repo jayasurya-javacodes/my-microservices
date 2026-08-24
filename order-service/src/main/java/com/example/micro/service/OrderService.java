@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class OrderService {
@@ -39,21 +40,23 @@ public class OrderService {
         );
     }
 
-    public OrderResponse getOrderById(Long orderId) {
+    public CompletableFuture<OrderResponse> getOrderById(Long orderId) {
         Order order = orders.get(orderId);
 
         if (order == null) {
-            throw new OrderNotFoundException("Order not found with given Id: "+orderId);
+            throw new OrderNotFoundException("Order not found with given Id: " + orderId);
         }
 
-        UserResponse user = userClient.getUserById(order.getUserId());
+        // UserResponse user = userClient.getUserById(order.getUserId());
 
-        return new OrderResponse(
-                order.getOrderId(),
-                order.getUserId(),
-                order.getProduct(),
-                user.getName(),
-                user.getEmail()
-        );
+        return userClient
+                .getUserById(order.getUserId())
+                .thenApply(user -> new OrderResponse(
+                        order.getOrderId(),
+                        order.getUserId(),
+                        order.getProduct(),
+                        user.getName(),
+                        user.getEmail()
+                ));
     }
 }

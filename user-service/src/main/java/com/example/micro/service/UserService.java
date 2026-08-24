@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class UserService {
@@ -34,9 +35,21 @@ public class UserService {
 
     public UserResponse getUserById(Long id) {
         UserResponse user = users.get(id);
-        if(user == null){
+        if (user == null) {
             throw new UserNotFoundException("User not found with id " + id);
         }
+
+        int delay = ThreadLocalRandom.current().nextInt(1000, 5001);
+
+        System.out.println("Delay: " + delay);
+
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("User service Interrupted");
+        }
+
         return user;
     }
 }
