@@ -5,7 +5,7 @@ import com.example.micro.exception.UserServiceUnavailableException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -16,17 +16,17 @@ public class UserClient {
 
     private final RestClient restClient;
 
-    public UserClient(RestClient.Builder builder,
-                      @Value("${user.service.url}") String userServiceUrl) {
+    public UserClient(
+            @Qualifier("loadBalancedRestClientBuilder") RestClient.Builder builder){
 
         this.restClient = builder
-                .baseUrl(userServiceUrl)
+                .baseUrl("http://USER-SERVICE")
                 .build();
     }
 
     @Retry(name = "userRetry")
     @TimeLimiter(name = "userTimeLimiter")
-    @CircuitBreaker(name = "userCircuitBreaker", fallbackMethod = "userFallback")
+   @CircuitBreaker(name = "userCircuitBreaker", fallbackMethod = "userFallback")
     public CompletableFuture<UserResponse> getUserById(Long userId) {
 
         return CompletableFuture.supplyAsync(() -> {
@@ -40,11 +40,18 @@ public class UserClient {
 
     }
 
-    public CompletableFuture<UserResponse> userFallback(Long userId, Throwable throwable) {
+    public CompletableFuture<UserResponse> userFallback(
+            Long userId,
+            Throwable throwable) {
 
         System.out.println("User Circuit Breaker fallback triggered");
+        System.out.println("Reason: " + throwable.getMessage());
 
-        throw new UserServiceUnavailableException("User Service is currently unavailable,please try again");
+        return CompletableFuture.failedFuture(
+                new UserServiceUnavailableException(
+                        "User Service is currently unavailable, please try again"
+                )
+        );
     }
 
 }

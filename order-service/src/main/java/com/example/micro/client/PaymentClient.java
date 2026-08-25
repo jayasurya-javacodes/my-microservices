@@ -4,7 +4,7 @@ import com.example.micro.exception.PaymentServiceUnavailableException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -15,32 +15,26 @@ public class PaymentClient {
 
     private final RestClient restClient;
 
-    public PaymentClient(RestClient.Builder builder,
-                         @Value("${payment.service.url}") String paymentServiceUrl) {
+    public PaymentClient(
+            @Qualifier("loadBalancedRestClientBuilder") RestClient.Builder builder) {
 
         this.restClient = builder
-                .baseUrl(paymentServiceUrl)
+                .baseUrl("http://PAYMENT-SERVICE")
                 .build();
     }
 
     @Retry(name = "paymentRetry")
     @TimeLimiter(name = "paymentTimeLimiter")
     @CircuitBreaker(name = "paymentCircuitBreaker", fallbackMethod = "paymentFallback")
-    public CompletableFuture<String> processPayment() {
+    public CompletableFuture<String> processPayment()  {
 
         return CompletableFuture.supplyAsync(() -> {
 
-            try {
-                return restClient.get()
-                        .uri("/payment/process")
-                        .retrieve()
-                        .body(String.class);
+            return restClient.get()
+                    .uri("/payment/process")
+                    .retrieve()
+                    .body(String.class);
 
-            } catch (Exception e) {
-                throw new PaymentServiceUnavailableException(
-                        "Payment Service is currently unavailable");
-
-            }
         });
     }
 
@@ -48,6 +42,8 @@ public class PaymentClient {
 
         System.out.println("PAYMENT FALLBACK CALLED: " + throwable.getClass().getSimpleName());
 
-        return CompletableFuture.completedFuture("Payment service is temporarily unavailable. Please try again later.");
+        return CompletableFuture.completedFuture(
+                "Payment service is temporarily unavailable. Please try again later."
+        );
     }
 }
