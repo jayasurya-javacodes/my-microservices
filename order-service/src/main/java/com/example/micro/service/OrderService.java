@@ -1,6 +1,7 @@
 package com.example.micro.service;
 
 import com.example.micro.client.UserClient;
+import com.example.micro.dto.CreateOrderRequest;
 import com.example.micro.dto.OrderResponse;
 import com.example.micro.dto.UserResponse;
 import com.example.micro.exception.OrderNotFoundException;
@@ -38,6 +39,31 @@ public class OrderService {
                         "Phone"
                 )
         );
+    }
+
+    public  CompletableFuture<OrderResponse> createOrder(CreateOrderRequest request){
+
+        return userClient
+                .getUserById(request.getUserId())
+                .thenApply(user -> {
+
+                    Long orderId=101L;
+
+                    Order order = new Order(
+                            orderId,
+                            request.getUserId(),
+                            request.getProduct()
+                    );
+                    orders.put(orderId, order);
+
+                    return new  OrderResponse(
+                            order.getOrderId(),
+                            order.getUserId(),
+                            order.getProduct(),
+                            user.getName(),
+                            user.getEmail()
+                    );
+                });
     }
 
     public CompletableFuture<OrderResponse> getOrderById(Long orderId) {

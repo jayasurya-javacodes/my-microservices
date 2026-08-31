@@ -17,16 +17,17 @@ public class UserClient {
     private final RestClient restClient;
 
     public UserClient(
-            @Qualifier("loadBalancedRestClientBuilder") RestClient.Builder builder){
+            @Qualifier("loadBalancedRestClientBuilder") RestClient.Builder builder) {
 
         this.restClient = builder
                 .baseUrl("http://USER-SERVICE")
                 .build();
     }
 
+
     @Retry(name = "userRetry")
     @TimeLimiter(name = "userTimeLimiter")
-   @CircuitBreaker(name = "userCircuitBreaker", fallbackMethod = "userFallback")
+    @CircuitBreaker(name = "userCircuitBreaker", fallbackMethod = "userFallback")
     public CompletableFuture<UserResponse> getUserById(Long userId) {
 
         return CompletableFuture.supplyAsync(() -> {

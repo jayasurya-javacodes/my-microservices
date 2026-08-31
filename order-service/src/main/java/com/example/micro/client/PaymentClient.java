@@ -23,10 +23,11 @@ public class PaymentClient {
                 .build();
     }
 
+
     @Retry(name = "paymentRetry")
     @TimeLimiter(name = "paymentTimeLimiter")
     @CircuitBreaker(name = "paymentCircuitBreaker", fallbackMethod = "paymentFallback")
-    public CompletableFuture<String> processPayment()  {
+    public CompletableFuture<String> processPayment() {
 
         return CompletableFuture.supplyAsync(() -> {
 
