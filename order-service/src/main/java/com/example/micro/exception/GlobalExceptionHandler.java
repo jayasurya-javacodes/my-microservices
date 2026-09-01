@@ -88,23 +88,23 @@ public class GlobalExceptionHandler {
         );
     }
 
-//    @ExceptionHandler(AccessDeniedException.class)
-//    public ResponseEntity<ApiError> handleAccessDenied(
-//            AccessDeniedException ex,
-//            HttpServletRequest request) {
-//
-//        ApiError apiError = new ApiError(
-//                LocalDateTime.now(),
-//                HttpStatus.FORBIDDEN.value(),
-//                HttpStatus.FORBIDDEN.getReasonPhrase(),
-//                "Access Denied",
-//                request.getRequestURI()
-//        );
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDenied(
+            AccessDeniedException ex,
+            HttpServletRequest request) {
 
-//        return ResponseEntity
-//                .status(HttpStatus.FORBIDDEN)
-//                .body(apiError);
-//    }
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                "Access Denied",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(apiError);
+    }
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiError> handleInvalidCredentials(
             InvalidCredentialsException ex,

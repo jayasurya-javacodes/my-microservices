@@ -13,13 +13,22 @@ public class AuthService {
 
     public String login(String username, String password) {
 
-        if ("admin".equals(username) && "admin123".equals(password)) {
+        if (username.equals("admin") && password.equals("admin123")) {
 
-            return jwtUtil.generateToken(username);
+            return jwtUtil.generateToken("admin", "ADMIN");
+
         }
 
-        throw new InvalidCredentialsException(
-                "Invalid username/password"
-        );
+        if (username.equals("user") && password.equals("user123")) {
+            return jwtUtil.generateToken("user", "USER");
+        }
+
+        if(username.equals("manager") && password.equals("manager123")) {
+            return jwtUtil.generateToken("manager", "MANAGER");
+        }
+
+        throw new InvalidCredentialsException("Invalid username or password");
+
     }
+
 }

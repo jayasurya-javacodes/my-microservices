@@ -11,13 +11,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
 
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping("/api/v1/orders")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
@@ -25,6 +26,7 @@ public class OrderController {
     private final OrderService orderService;
     private final UserClient userClient;
 
+    @PreAuthorize("hasAnyRole('USER', 'MANAGER', 'ADMIN')")
     @GetMapping("/get/{id}")
     public CompletableFuture<?> getOrderById(@PathVariable Long id) {
 
@@ -33,6 +35,7 @@ public class OrderController {
                 .thenApply(ResponseEntity::ok);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'MANAGER', 'ADMIN')")
     @PostMapping("/create")
     public CompletableFuture<ResponseEntity<OrderResponse>> createOrder(
             @Valid @RequestBody CreateOrderRequest request) {
@@ -41,6 +44,7 @@ public class OrderController {
                         ResponseEntity.status(HttpStatus.CREATED).body(response));
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @GetMapping("/user/{userId}")
     public CompletableFuture<ResponseEntity<UserResponse>> getUserById(@PathVariable Long userId) {
 
@@ -50,6 +54,7 @@ public class OrderController {
                 .thenApply(ResponseEntity::ok);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'MANAGER', 'ADMIN')")
     @GetMapping("/process-payment")
     public CompletableFuture<String> processPayment() {
         return paymentClient.processPayment();

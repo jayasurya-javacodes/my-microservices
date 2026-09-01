@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -51,6 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 username = jwtUtil.extractUsername(token);
+
             } catch (Exception e) {
                 System.out.println("Invalid JWT token");
             }
@@ -64,36 +67,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (jwtUtil.validateToken(token)) {
 
-                    System.out.println("========== JWT FILTER ==========");
-                    System.out.println("Token is VALID");
-                    System.out.println("Username: " + username);
-                    System.out.println("Dispatcher Type: "
-                            + request.getDispatcherType());
+                    String role = jwtUtil.extractRole(token);
+
+                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
                                     username,
                                     null,
-                                    Collections.emptyList()
+                                    List.of(authority)
                             );
 
                     SecurityContextHolder
                             .getContext()
                             .setAuthentication(authentication);
 
-                    System.out.println("Authenticated: " +
-                            SecurityContextHolder
-                                    .getContext()
-                                    .getAuthentication()
-                                    .isAuthenticated());
-
-                    System.out.println("Authorities: " +
-                            SecurityContextHolder
-                                    .getContext()
-                                    .getAuthentication()
-                                    .getAuthorities());
-
                     System.out.println("========== JWT FILTER ==========");
+
+                    System.out.println("Token is VALID");
+
+                    System.out.println("Username: " + username);
+
+                    System.out.println("Role: " + role);
+
+                    System.out.println("Authenticated: " + authentication.isAuthenticated());
+
+                    System.out.println("Authorities: " + authentication.getAuthorities()
+                    );
+
+                    System.out.println("================================");
                 }
 
             } catch (Exception e) {
