@@ -39,7 +39,7 @@ public class UserService {
             throw new UserNotFoundException("User not found with id " + id);
         }
 
-        int delay = ThreadLocalRandom.current().nextInt(1000, 5001);
+        int delay = ThreadLocalRandom.current().nextInt(1000, 3001);
 
         System.out.println("Delay: " + delay);
 
